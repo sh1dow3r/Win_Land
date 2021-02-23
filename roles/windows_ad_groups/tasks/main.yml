@@ -1,0 +1,81 @@
+---
+- name: Save the result of 'whoami' in 'whoami_out'
+  win_command: whoami
+
+- name : pause for 5 min before adding Groups and OUs 
+  pause:
+    seconds: 300
+
+- name: Add OUs for CDT and Pentest and ADMIN 
+  win_command: powershell.exe -
+  args:
+    stdin: New-ADOrganizationalUnit -Name {{ item }} -Path "DC=vase,DC=Local" 
+  with_items:
+    - ADMIN
+    - CDT
+    - Pentest
+  register: res 
+  failed_when: "'already in use' not in res.stderr"
+    
+- name: Add TA and Student OUs inside CDT and Pentest OUs
+  win_command: powershell.exe -
+  args:
+    stdin: New-ADOrganizationalUnit -Name {{ item.name }} -Path "OU={{ item.OU }}, DC=vase,DC=Local" -Description "{{ item.Description }}"
+  loop:
+    - { name: 'TA', OU: 'CDT', Description: 'TA OU for CDT' }
+    - { name: 'TA', OU: 'CDT', Description: 'TA OU for CDT' }
+    - { name: 'Student', OU: 'CDT', Description: 'Student OU for CDT' }
+    - { name: 'TA', OU: 'Pentest', Description: 'TA OU for Pentest' }
+    - { name: 'Student', OU: 'Pentest', Description: 'Student OU for Pentest' }
+  register: res 
+  failed_when: "'already in use' not in res.stderr"
+
+
+- name: Add groups to OUs
+  win_domain_group:
+    name: "{{ item.name }}"
+    domain_username: "{{vase_admin_user}}"
+    domain_password: "{{vase_admin_password}}"
+    domain_server: "{{vase_dc_address}}"
+    scope: global
+    path: OU={{ item.OU }},DC=vase,DC=local
+  with_items: 
+     - { name: 'CDT-Resource', OU: 'CDT' }
+     - { name: 'CDT-TA', OU: 'CDT' }
+     - { name: 'TeamA-CDT', OU: 'CDT' }
+     - { name: 'TeamB-CDT', OU: 'CDT' }
+     - { name: 'TeamC-CDT', OU: 'CDT' }
+     - { name: 'Pentest-Resource', OU: 'Pentest' }
+     - { name: 'Pentest-TA', OU: 'Pentest' }
+     - { name: 'pfsense admin', OU: 'ADMIN' }
+     - { name: 'vCenter Admins', OU: 'ADMIN' }
+     - { name: 'ESX Admins', OU: 'ADMIN' }
+     - { name: 'FULL_ADMIN', OU: 'ADMIN' }
+
+- name: Add FULL_ADMIN to Admin Groups
+  win_domain_group_membership:
+    name: '{{item}}'
+    members:
+      - 'FULL_ADMIN'
+    state: present
+  with_items: 
+    - 'ESX Admins'
+    - 'vCenter Admins'
+    - 'pfsense admin'
+
+- name: Add a domain user/group to a domain group - CDT-Resource
+  win_domain_group_membership:
+    name: CDT-Resource
+    members:
+      - 'TeamA-CDT'
+      - 'TeamB-CDT'
+      - 'TeamC-CDT'
+    state: present
+
+#- name: Add a domain user/group to a domain group - Pentest-Resource
+#  win_domain_group_membership:
+#    name: Pentest-Resource
+#    members:
+#      - 'PentestA'
+#    state: present
+     

@@ -1,0 +1,31 @@
+---
+- name: Create User - TeamA
+  win_domain_user:
+    name: TeamA
+    firstname: Team
+    surname: A
+    company: RIT - CDT
+    password: "{{standard_password_change}}"
+    state: present
+    groups:
+      - Domain Users
+      - CDT-Resource
+    domain_username: "{{vase_admin_user}}"
+    domain_password: "{{vase_admin_password}}"
+    domain_server: "{{vase_dc_address}}"
+    
+- name: Create User - TA CDT
+  win_domain_user:
+    name: TA_CDT
+    firstname: TA
+    surname: CDT
+    company: RIT - CDT
+    password: "{{standard_password_change}}"
+    state: present
+    groups:
+      - Domain Users
+      - CDT-Resource
+      - CDT-TA
+    domain_username: "{{vase_admin_user}}"
+    domain_password: "{{vase_admin_password}}"
+    domain_server: "{{vase_dc_address}}"

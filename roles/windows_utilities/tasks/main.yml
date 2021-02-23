@@ -1,0 +1,9 @@
+- name: Install Firefox
+  win_chocolatey:
+    name: firefox
+    state: present
+
+- name: Install git
+  win_chocolatey:
+    name: git
+    state: present

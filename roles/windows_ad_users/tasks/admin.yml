@@ -1,0 +1,17 @@
+---
+- name: Create User - egallis [ADMIN TESTING]
+  win_domain_user:
+    name: Badmin
+    firstname: B
+    surname: Admin
+    password: "{{admin_user_password}}"
+    state: present
+    groups:
+      - Domain Admins
+      - Domain Users
+      - vCenter Admins
+      - ESX Admins
+    country: US
+    domain_username: "{{vase_admin_user}}"
+    domain_password: "{{vase_admin_password}}"
+    domain_server: "{{vase_dc_address}}"

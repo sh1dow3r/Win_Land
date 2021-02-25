@@ -1,0 +1,72 @@
+# Configure ADDS
+
+- name: Change the hostname to DC
+  win_hostname:
+    name: "{{ DC_hostname }}"
+  register: res
+ 
+- name: Reboot DC 
+  win_reboot: 
+  when: res.reboot_required
+
+
+- name: Install AD-Domain-Services feature
+  win_feature:
+    name: '{{ item }}'
+    include_management_tools: yes
+    include_sub_features: yes
+    state: present
+  with_items:
+  - AD-domain-services
+  - DNS
+  register: adds_result
+
+
+- name: Collect ADDS provision result
+  debug:
+    msg: "{{adds_result}}"
+
+- name : pause for 30 seconds before provisioning another feature
+  pause:
+    seconds: 30
+
+# ensure the named domain is reachable from the target host; 
+# if not, create the domain in a new forest residing on the target host
+# Initialise Forest (Promote DC)
+- name: Create new domain in a new forest on the target host
+  win_domain:
+    create_dns_delegation: no
+    database_path: C:\Windows\NTD
+    domain_netbios_name: '{{ domain_netbios_name }}'
+    sysvol_path: C:\Windows\SYSVOL
+    dns_domain_name: "{{ dc_domain_name }}"
+    safe_mode_password: "{{ safe_mode_password }}"
+  register: domain_install
+
+- name: Collect computer name result
+  debug:
+    msg: "{{ domain_install }}"
+
+- name: Reboot after forest creation
+  win_reboot:
+    connect_timeout: 60
+    post_reboot_delay: 180
+    reboot_timeout: 1000
+  when: domain_install.reboot_required
+
+- name: Wait for system to become reachable over WinRM
+  wait_for_connection:
+    timeout: 950
+
+- name: Ensure the server is a domain controller
+  win_domain_controller:
+      dns_domain_name: "{{ dc_domain_name }}"
+      domain_admin_user: "{{ domain_admin_user }}"
+      domain_admin_password: "{{ domain_admin_password }}"
+      safe_mode_password: "{{ safe_mode_password }}"
+      state: domain_controller
+      log_path: c:\ansible_windows_ad_setup.txt
+  register: check_domain_controller
+
+
+

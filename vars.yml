@@ -1,0 +1,39 @@
+# Windows_AD_generic
+initial_admin_password: "BadPassword123!"
+initial_domain_admin_password: "BadPassword123!"
+
+domain_admin_user: "Administrator@mydomain.local"
+domain_admin_password: "BadPassword123!"
+DC_address: 10.1.1.1
+DC_hostname: "DC"
+
+# Windows_AD_setup_vars
+dc_domain_name: "mydomain.local"
+domain_netbios_name: "mydomain" 
+safe_mode_password: "BadPassword123!"
+
+# Windows_AD_User - Admin User 
+sysadmin_user_password: "BadPassword123!"
+
+
+# windows_dns_client
+secondary_dns_server: 1.1.1.1
+
+
+# windows_dns_record 
+forward_zone_name: "mydomain.local"
+reverse_zone_network: "10.1.1.0/24"
+reverse_zone_name: "1.0.10.in-addr.arpa"
+
+# A records
+ESX_IP: 10.1.1.10
+vCenter_IP: 10.1.1.20
+pfsense_IP: 10.1.1.254  
+
+# PTR Records
+ESX_prefix: 10
+vCenter_prefix: 20
+pfsense_prefix: 254
+
+
+# Alias

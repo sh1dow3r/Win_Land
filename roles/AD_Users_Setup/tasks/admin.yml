@@ -1,0 +1,16 @@
+---
+- name: Create User - sysadmin
+  win_domain_user:
+    name: sysadmin
+    firstname: system   
+    surname: administrator
+    company: layer0.xyz
+    password: "{{sysadmin_user_password}}"
+    state: present
+    groups:
+      - Domain Admins
+      - Domain Users
+    country: US
+    domain_username: "{{domain_admin_user}}"
+    domain_password: "{{domain_admin_password}}"
+    domain_server: "{{DC_address}}"

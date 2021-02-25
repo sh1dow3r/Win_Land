@@ -1,0 +1,7 @@
+---
+- name: Set Windows DC Client DNS Settings
+  win_dns_client:
+    adapter_names: '*'
+    ipv4_addresses:
+    - 127.0.0.1
+    - "{{secondary_dns_server}}"

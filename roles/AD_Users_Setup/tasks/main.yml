@@ -1,0 +1,7 @@
+---
+- name: Wait for system to become reachable over WinRM
+  wait_for_connection:
+    timeout: 950
+
+- name: RUN Admin Users
+  import_tasks: admin.yml

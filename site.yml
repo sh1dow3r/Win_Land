@@ -1,0 +1,13 @@
+---
+- name: Config Windows DC
+  hosts: DC
+  gather_facts: false
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+        - AD_DNS_Setup
+        - DNS_Records
+        - DNS_Config
+#        - AD_Users_Setup
+        - DC_Utilities

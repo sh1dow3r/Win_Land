@@ -1,0 +1,45 @@
+- name: Create A records for DNS server and its clients
+  win_dns_record:
+    name: "{{ item.DNS_A_Record_name }}"
+    type: "A"
+    value: "{{ item.DNS_A_Record_value }}"
+    zone: "{{ forward_zone_name }}"
+    state: present
+  with_items: 
+    - { DNS_A_Record_name: "esxi",  DNS_A_Record_value: "{{ ESX_IP }}" }
+    - { DNS_A_Record_name: "vc",  DNS_A_Record_value: "{{ vCenter_IP }}" }  
+    - { DNS_A_Record_name: "keeper",  DNS_A_Record_value: "{{ pfsense_IP }}" }  
+
+- name: Import DNS module 
+  win_command: powershell.exe -
+  args:
+    stdin: 'Import-Module DnsServer'
+
+- name: Create PTR Address space - {{reverse_zone_name}}
+  win_command: powershell.exe -
+  args:
+    stdin: 'Add-DnsServerPrimaryZone -NetworkId {{reverse_zone_network}} -ReplicationScope "Forest"'
+  register: res 
+  failed_when: "'ResourceExists' not in res.stderr"
+  ignore_errors: yes
+
+- name: Create PTR record for DNS server and its clients
+  win_dns_record:
+    name: '{{item.DNS_PTR_Record_name}}'
+    type: "PTR"
+    value: '{{item.DNS_PTR_Record_value}}'
+    zone: "{{reverse_zone_name}}"
+  with_items:
+    - { DNS_PTR_Record_name: '{{ ESX_prefix }}',  DNS_PTR_Record_value: 'esxi' }  
+    - { DNS_PTR_Record_name: '{{ vCenter_prefix }}',  DNS_PTR_Record_value: 'vc' } 
+    - { DNS_PTR_Record_name: '{{ pfsense_prefix }}',  DNS_PTR_Record_value: 'pf' }
+
+# - name: Create CNAME record aliasi for DNS server
+#   win_dns_record:
+#     name: "{{ item.DNS_CNAME_Record_name }}"
+#     type: "CNAME"
+#     value: "{{ item.DNS_CNAME_Record_value }}"
+#     zone: "layer0.xyz"
+#   with_items: 
+#     - { DNS_CNAME_Record_name: 'keeper1',  DNS_CNAME_Record_value: "gateway1.layer0.xyz" }  
+#     - { DNS_CNAME_Record_name: 'keeper2',  DNS_CNAME_Record_value: "gateway2.layer0.xyz" }  

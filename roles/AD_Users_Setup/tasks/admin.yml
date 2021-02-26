@@ -1,11 +1,11 @@
 ---
-- name: Create User - sysadmin
+- name: Create User - "{{ backup_username }}"
   win_domain_user:
-    name: sysadmin
-    firstname: system   
-    surname: administrator
-    company: layer0.xyz
-    password: "{{sysadmin_user_password}}"
+    name: "{{ backup_username }}"
+    #firstname: "{{ backup_user }}"   
+    #surname: administrator
+    #company: layer0.xyz
+    password: "{{ backup_user_password }}"
     state: present
     groups:
       - Domain Admins

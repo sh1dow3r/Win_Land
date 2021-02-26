@@ -1,14 +1,16 @@
 - name: Create A records for DNS server and its clients
   win_dns_record:
-    name: "{{ item.DNS_A_Record_name }}"
+    name: "{{ item.value.name }}"
     type: "A"
-    value: "{{ item.DNS_A_Record_value }}"
+    value: "{{ item.value.IP }}"
     zone: "{{ forward_zone_name }}"
     state: present
-  with_items: 
-    - { DNS_A_Record_name: "esxi",  DNS_A_Record_value: "{{ ESX_IP }}" }
-    - { DNS_A_Record_name: "vc",  DNS_A_Record_value: "{{ vCenter_IP }}" }  
-    - { DNS_A_Record_name: "keeper",  DNS_A_Record_value: "{{ pfsense_IP }}" }  
+  loop: "{{ lookup('dict', Records_FWD) }}"
+  # with_items: 
+  #   - { DNS_A_Record_name: "esxi",  DNS_A_Record_value: "{{ ESX_IP }}" }
+  #   - { DNS_A_Record_name: "vc",  DNS_A_Record_value: "{{ vCenter_IP }}" }  
+  #   - { DNS_A_Record_name: "keeper",  DNS_A_Record_value: "{{ pfsense_IP }}" }  
+
 
 - name: Import DNS module 
   win_command: powershell.exe -
@@ -25,14 +27,15 @@
 
 - name: Create PTR record for DNS server and its clients
   win_dns_record:
-    name: '{{item.DNS_PTR_Record_name}}'
+    name: '{{ item.value.IP_Prefix }}'
     type: "PTR"
-    value: '{{item.DNS_PTR_Record_value}}'
-    zone: "{{reverse_zone_name}}"
-  with_items:
-    - { DNS_PTR_Record_name: '{{ ESX_prefix }}',  DNS_PTR_Record_value: 'esxi' }  
-    - { DNS_PTR_Record_name: '{{ vCenter_prefix }}',  DNS_PTR_Record_value: 'vc' } 
-    - { DNS_PTR_Record_name: '{{ pfsense_prefix }}',  DNS_PTR_Record_value: 'pf' }
+    value: '{{ item.value.name }}'
+    zone: "{{ reverse_zone_name }}"
+  loop: "{{ lookup('dict', Records_PTR) }}"
+  # with_items:
+  #   - { DNS_PTR_Record_name: '{{ ESX_prefix }}',  DNS_PTR_Record_value: 'esxi' }  
+  #   - { DNS_PTR_Record_name: '{{ vCenter_prefix }}',  DNS_PTR_Record_value: 'vc' } 
+  #   - { DNS_PTR_Record_name: '{{ pfsense_prefix }}',  DNS_PTR_Record_value: 'pf' }
 
 # - name: Create CNAME record aliasi for DNS server
 #   win_dns_record:

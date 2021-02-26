@@ -1,8 +1,5 @@
 - name: Install Essentials 
   win_chocolatey:
     name: 
-      - googlechrome
-      - firefox
-      - git
-      - notepadplusplus
+      - "{{ list_of_packages }}"
     state: present

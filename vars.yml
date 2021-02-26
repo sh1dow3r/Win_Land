@@ -13,7 +13,8 @@ domain_netbios_name: "mydomain"
 safe_mode_password: "BadPassword123!"
 
 # Windows_AD_User - Admin User 
-sysadmin_user_password: "BadPassword123!"
+backup_username: "BAdmin"
+backup_user_password: "BadPassword123!"
 
 
 # windows_dns_client
@@ -26,14 +27,35 @@ reverse_zone_network: "10.1.1.0/24"
 reverse_zone_name: "1.0.10.in-addr.arpa"
 
 # A records
-ESX_IP: 10.1.1.10
-vCenter_IP: 10.1.1.20
-pfsense_IP: 10.1.1.254  
+# You can add as much as needed
+Records_FWD:
+    ESXI: 
+      IP: 10.1.1.10
+      name: esxi
+    vCenter: 
+      IP: 10.1.1.20
+      name: vcenter
+    pfsense: 
+      IP: 10.1.1.254 
+      name: pf 
 
 # PTR Records
-ESX_prefix: 10
-vCenter_prefix: 20
-pfsense_prefix: 254
+# You can add as much as needed
+Records_PTR:
+    ESXI: 
+      IP_Prefix: 10
+      name: esxi
+    vCenter: 
+      IP_Prefix: 20
+      name: vcenter
+    pfsense: 
+      IP_Prefix: 254 
+      name: pf 
 
-
-# Alias
+#DC_Utilities list of packages to install on the DC
+# you can add as much as needed 
+list_of_packages:
+  - googlechrome
+  - firefox
+  - git
+  - notepadplusplus
